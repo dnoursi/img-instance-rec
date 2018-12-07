@@ -106,7 +106,7 @@ feats1 = extract_features(img1, xs1, ys1, 1.0)
 matches, match_scores = match_features(feats0, feats1, scores0, scores1)
 
 threshold = 1.0 # adjust this for your match scoring system
-plot_matches(img0, img1, xs0, ys0, xs1, ys1, matches, match_scores, threshold)
+#plot_matches(img0, img1, xs0, ys0, xs1, ys1, matches, match_scores, threshold)
 plt.show(block = False)
 
 ## Problem 4 - Hough Transform
@@ -120,4 +120,3 @@ tx, ty, votes = hough_votes(xs0, ys0, xs1, ys1, matches, match_scores)
 show_overlay(img0, img1, tx, ty)
 #plt.show(block = False)
 plt.show()
-

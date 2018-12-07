@@ -259,6 +259,9 @@ def extract_features(image, xs, ys, scale = 1.0):
    compute the best matching feature in the second set for each feature in the
    first set.
 
+   the second set in general contains many more elements than the first set
+   the second set is indexed by a kd tree
+
    Matching need not be (and generally will not be) one-to-one or symmetric.
    Calling this function with the order of the feature sets swapped may
    result in different returned correspondences.
@@ -291,72 +294,108 @@ def extract_features(image, xs, ys, scale = 1.0):
       scores   - a numpy array of shape (N0,) containing a real-valued score
                  for each match
 """
+
+import collections
+
+# https://en.wikipedia.org/wiki/K-d_tree
+TreeNode = collections.namedtuple("TreeNode", ["axis", "index", "left", "right"])
+
+
+# at a layer we have: [axis, splitting node index, sub tree if lesser than, sub tree if greater than]
+def make_kd_tree(points):
+    k = len(points[0])
+    depth = 0
+    values = [(p,i) for i,p in enumerate(points)]
+    return kd_tree(values, 0, k)
+
+def kd_tree(values, depth, k):
+    if not values:
+        return None
+
+    axis = depth % k
+    axisValues = [(p[axis],i) for (p,i) in values]
+    axisValues.sort()
+    median = len(axisValues) // 2 # choose median
+
+    # Create node and construct subtrees
+    index = axisValues[median][1]
+
+    leftIndices = [value[1] for value in axisValues[:median]]
+    leftValues = [value  for value in values if value[1] in leftIndices]
+    leftTree = kd_tree(leftValues, depth + 1, k)
+    left = leftTree
+
+    rightIndices = [value[1] for value in axisValues[median+1:]]
+    rightValues = [value  for value in values if value[1] in rightIndices]
+    rightTree = kd_tree(rightValues, depth + 1, k)
+    right = rightTree
+
+    result = TreeNode(axis=axis, index=index, left=left, right=right)
+    return result
+
+
+
+def traverse(vector, treeRoot, treeVectors):
+    binsHeap = []
+    currentNode = treeRoot
+
+    soln = currentNode
+    solnDist = vecDist(vector, treeVectors, soln.index)
+
+    while currentNode:
+        # Check if we've found the best current solution
+        distHere = vecDist(vector, treeVectors, currentNode.index)
+        if distHere < solnDist:
+            soln = currentNode
+            solnDist = distHere
+
+        # Traverse tree
+        dimDist = vector[currentNode.axis] - treeVectors[currentNode.index][currentNode.axis]
+        if dimDist > 0:
+            binsHeap.append((abs(dimDist), currentNode.right))
+            currentNode = currentNode.left
+        else:
+            binsHeap.append((abs(dimDist), currentNode.left))
+            currentNode = currentNode.right
+
+    binsHeap.sort(key=lambda x:x[0])
+    return soln, binsHeap
+
+def nearestNeighbor(vector, treeRoot, treeVectors):
+    if not treeRoot:
+        return None
+    soln, binsHeap = traverse(vector, treeRoot, treeVectors)
+    solnDist = vecDist(vector, treeVectors, soln.index)
+
+    # BBF ensure that we've found the best NN
+    for (minBinDist, binTree) in binsHeap:
+        # All potential bins checked
+        if minBinDist > solnDist:
+            break
+        altSoln = nearestNeighbor(vector, binTree, treeVectors)
+        if altSoln:
+            altSolnDist = vecDist(vector, treeVectors, altSoln.index)
+            if altSolnDist < solnDist:
+                soln = altSoln
+                solnDist = altSolnDist
+
+    return soln
+
+def vecDist(v1, v2list, v2index):
+    v2 = v2list[v2index]
+    return np.linalg.norm(v1 - v2)
+
 def match_features(feats0, feats1, scores0, scores1):
     matches = []
     scores = []
 
+    kdTree = make_kd_tree(feats1)
     for feat0 in feats0:
-        distances = [np.linalg.norm(feat0 - feat1) for feat1 in feats1]
-
-        argminn = np.argmin(distances)
-        matches.append(argminn)
-
-        # Score is distance ratio: nn2/nn1
-        dist1 = distances[argminn]
-        assert dist1 == np.amin(distances)
-        distances[argminn] = np.inf
-
-        dist2 = np.amin(distances)
-        scores.append(dist2/dist1)
-
-    scores = np.array(scores)
+        matched = nearestNeighbor(feat0, kdTree, feats1)
+        matches.append(matched.index)
     matches = np.array(matches, np.int)
-    assert np.all(scores >= 1), "Scores are nnd2/nnd1 ratios"
+    return matches, None
 
-    ##########################################################################
-    # TODO: YOUR CODE HERE
-    #raise NotImplementedError('match_features')
-    ##########################################################################
-    return matches, scores
-
-"""
-   HOUGH TRANSFORM (7 Points Implementation + 3 Points Write-up)
-
-   Assuming two images of the same scene are related primarily by
-   translational motion, use a predicted feature correspondence to
-   estimate the overall translation vector t = [tx ty].
-
-   Your implementation should use a Hough transform that tallies votes for
-   translation parameters.  Each pair of matched features votes with some
-   weight dependant on the confidence of the match; you may want to use your
-   estimated scores to determine the weight.
-
-   In order to accumulate votes, you will need to decide how to discretize the
-   translation parameter space into bins.
-
-   In addition to your implementation, include a brief write-up (in hw2.pdf)
-   of your design choices.
-
-   Arguments:
-      xs0     - numpy array of shape (N0,) containing x-coordinates of the
-                interest points for features in the first image
-      ys0     - numpy array of shape (N0,) containing y-coordinates of the
-                interest points for features in the first image
-      xs1     - numpy array of shape (N1,) containing x-coordinates of the
-                interest points for features in the second image
-      ys1     - numpy array of shape (N1,) containing y-coordinates of the
-                interest points for features in the second image
-      matches - a numpy array of shape (N0,) containing, for each feature in
-                the first image, the index of the best match in the second
-      scores  - a numpy array of shape (N0,) containing a real-valued score
-                for each pair of matched features
-
-   Returns:
-      tx      - predicted translation in x-direction between images
-      ty      - predicted translation in y-direction between images
-      votes   - a matrix storing vote tallies; this output is provided for
-                your own convenience and you are free to design its format
-"""
 def hough_votes(xs0, ys0, xs1, ys1, matches, scores):
 
     scale = 3
@@ -374,7 +413,7 @@ def hough_votes(xs0, ys0, xs1, ys1, matches, scores):
 
         if (binx, biny) not in bins: #bins.keys():
             bins[(binx, biny)] = 0
-        bins[(binx, biny)] += scores[i]
+        bins[(binx, biny)] += 1 # scores[i]
 
     tx, ty = max(bins, key=bins.get)
     tx *= scale
