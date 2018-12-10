@@ -2,6 +2,7 @@
 
 import numpy as np
 import canny
+import imutils
 
 """
    INTEREST POINT OPERATOR (12 Points Implementation + 3 Points Write-up)
@@ -80,11 +81,18 @@ import canny
                     measurement of the relative strength of each interest point
                     (e.g. corner detector criterion OR DoG operator magnitude)
 """
-def find_interest_points(image, max_points = 200, scale = 1.0):
+def find_interest_points(image, max_points = 200, scale = 1.0, img_dir = None):
    # check that image is grayscale
     assert image.ndim == 2, 'image should be grayscale'
 
     dx, dy = canny.sobel_gradients(image)
+
+    or_x, or_y = dir_img(dx, dy, image)
+
+    if img_dir is not None :
+      angle = (or_x - img_dir) * 180.0/np.pi
+      image = imutils.rotate(image, angle)
+
 
     win_size = int(scale)
 
@@ -142,7 +150,8 @@ def find_interest_points(image, max_points = 200, scale = 1.0):
                 banned.add((x + ox, y + oy))
     xs = np.array(xs)
     ys = np.array(ys)
-    return xs, ys, scores
+
+    return xs, ys, scores, ((or_x + or_y)/2) #should be the same exact number, but for good measure (probably unnnecasary)
 
 """
    FEATURE DESCRIPTOR (12 Points Implementation + 3 Points Write-up)
@@ -205,7 +214,7 @@ def energy_bins(window):
     return np.ndarray.flatten(results)
     # Order of vector coordinates does not matter; flatten is deterministic, therefore repeatable
 
-def extract_features(image, xs, ys, scale = 1.0):
+def extract_features(image, xs, ys, scale = 1):
    # check that image is grayscale
     assert image.ndim == 2, 'image should be grayscale'
     assert len(xs) == len(ys), 'xs and ys correspond'
@@ -251,6 +260,24 @@ def extract_features(image, xs, ys, scale = 1.0):
     # TODO: YOUR CODE HERE
     #raise NotImplementedError('extract_features')
     ##########################################################################
+
+#compute averge orientation at each pixel 
+def dir_img(dx, dy, img):
+  for x in range(len(dx)):
+    for y in range(len(dx[x])):
+      dx[x][y] = np.arctan2(y, x) % np.pi
+
+  orientation_x =  np.average(dx)
+
+  for x in range(len(dy)):
+    for y in range(len(dy[x])):
+      dy[x][y] = np.arctan2(y, x) % np.pi
+
+  orientation_y =  np.average(dy)
+
+  print(orientation_x, orientation_y)
+
+  return orientation_x, orientation_y
 
 """
    FEATURE MATCHING (7 Points Implementation + 3 Points Write-up)
@@ -301,7 +328,7 @@ import collections
 TreeNode = collections.namedtuple("TreeNode", ["axis", "index", "left", "right"])
 
 
-# at a layer we have: [axis, splitting node index, sub tree if lesser than, sub tree if greater than]
+# at a layer we have: [axis, splitt3ing node index, sub tree if lesser than, sub tree if greater than]
 def make_kd_tree(points):
     k = len(points[0])
     depth = 0

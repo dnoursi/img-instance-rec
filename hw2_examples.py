@@ -68,8 +68,11 @@ from hw2 import *
 #img0 = load_image('data/rio/rio-47.png')
 #img1 = load_image('data/rio/rio-48.png')
 
-img0 = load_image('data/shanghai/shanghai-23.png')
-img1 = load_image('data/shanghai/shanghai-24.png')
+# img0 = load_image('data/shanghai/shanghai-23.png')
+# img1 = load_image('data/shanghai/shanghai-24.png')
+
+img0 = load_image('data/test_proj/shanghai-23.png')
+img1 = load_image('data/test_proj/shanghai-24_test.png')
 
 ## Problem 1 - Interest Point Operator
 ##             (12 Points Implementation + 3 Points Write-up)
@@ -79,8 +82,8 @@ img1 = load_image('data/shanghai/shanghai-24.png')
 ##     choices you made and their effectiveness.
 
 N = 200
-xs0, ys0, scores0 = find_interest_points(img0, N, 1.0)
-xs1, ys1, scores1 = find_interest_points(img1, N, 1.0)
+xs0, ys0, scores0, img_dir0 = find_interest_points(img0, N, 1.0)
+xs1, ys1, scores1, img_dir1 = find_interest_points(img1, N, 1.0, img_dir0)
 
 plot_interest_points(img0, xs0, ys0, scores0)
 plot_interest_points(img1, xs1, ys1, scores1)
