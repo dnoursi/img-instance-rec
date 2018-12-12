@@ -87,10 +87,10 @@ def find_interest_points(image, max_points = 200, scale = 1.0, img_dir = None):
 
     dx, dy = canny.sobel_gradients(image)
 
-    or_x, or_y = dir_img(dx, dy, image)
+    or_xy= dir_img(dx, dy, image)
 
     if img_dir is not None :
-      angle = (or_x - img_dir) * 180.0/np.pi
+      angle = (or_xy - img_dir) * 180.0/np.pi
       image = imutils.rotate(image, angle)
 
 
@@ -151,7 +151,7 @@ def find_interest_points(image, max_points = 200, scale = 1.0, img_dir = None):
     xs = np.array(xs)
     ys = np.array(ys)
 
-    return xs, ys, scores, ((or_x + or_y)/2) #should be the same exact number, but for good measure (probably unnnecasary)
+    return xs, ys, scores, or_xy
 
 """
    FEATURE DESCRIPTOR (12 Points Implementation + 3 Points Write-up)
@@ -214,7 +214,7 @@ def energy_bins(window):
     return np.ndarray.flatten(results)
     # Order of vector coordinates does not matter; flatten is deterministic, therefore repeatable
 
-def extract_features(image, xs, ys, scale = 1):
+def extract_features_davids_old(image, xs, ys, scale = 1):
    # check that image is grayscale
     assert image.ndim == 2, 'image should be grayscale'
     assert len(xs) == len(ys), 'xs and ys correspond'
@@ -261,23 +261,55 @@ def extract_features(image, xs, ys, scale = 1):
     #raise NotImplementedError('extract_features')
     ##########################################################################
 
+def extract_features(image, xs, ys, scale = 1.0):
+   # check that image is grayscale
+   assert image.ndim == 2, 'image should be grayscale'
+   ##########################################################################
+   N = len(xs) #should be the same as len(ys)
+
+   window = 3 #not using scale, as its optional
+
+   feats = []
+
+   mag, theta = canny.canny_nmax(image)
+   for i in range(N):
+    bins = []
+
+    for x in range(3):
+      for y in range(3):
+        binx = (x+3)/((3+3)/3) 
+        biny = (y+3)/((3+3)/3)
+
+        bin = np.zeros(8)
+
+        for a in range(window):
+          for b in range(window):
+            x_disp = int(xs[i] - binx - 1 + a)
+            y_disp = int(ys[i] - biny - 1 + b)
+
+            val = int((theta[x_disp,y_disp] + np.pi)/((np.pi + np.pi)/8)) - 1
+
+            bin[val] += 1
+        bins.extend(bin)
+    feats.append(bins)
+
+   feats = np.asarray(feats)
+   ##########################################################################
+   return feats
+
 #compute averge orientation at each pixel 
 def dir_img(dx, dy, img):
+  dir_dxys = np.zeros_like(dy)
+
   for x in range(len(dx)):
     for y in range(len(dx[x])):
-      dx[x][y] = np.arctan2(y, x) % np.pi
+      dir_dxys[x][y] = np.arctan2(dy[x][y], dx[x][y]) % np.pi
 
-  orientation_x =  np.average(dx)
+  orient_xy =  np.average(dir_dxys)
 
-  for x in range(len(dy)):
-    for y in range(len(dy[x])):
-      dy[x][y] = np.arctan2(y, x) % np.pi
+  print(orient_xy)
 
-  orientation_y =  np.average(dy)
-
-  print(orientation_x, orientation_y)
-
-  return orientation_x, orientation_y
+  return orient_xy
 
 """
    FEATURE MATCHING (7 Points Implementation + 3 Points Write-up)

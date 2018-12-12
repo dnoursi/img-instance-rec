@@ -72,7 +72,7 @@ from hw2 import *
 # img1 = load_image('data/shanghai/shanghai-24.png')
 
 img0 = load_image('data/test_proj/shanghai-23.png')
-img1 = load_image('data/test_proj/shanghai-24_test.png')
+img1 = load_image('data/test_proj/shanghai-24.png')
 
 ## Problem 1 - Interest Point Operator
 ##             (12 Points Implementation + 3 Points Write-up)
