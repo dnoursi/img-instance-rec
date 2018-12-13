@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import imutils
 
 """
    Visualize interest point detections on an image.
@@ -98,7 +99,9 @@ def plot_matches(image0, image1, xs0, ys0, xs1, ys1, matches, scores, th):
       tx      - predicted translation in x-direction between images
       ty      - predicted translation in y-direction between images
 """
-def show_overlay(image0, image1, tx, ty):
+def show_overlay(image0, image1, tx, ty, img1rot):
+   image1 = imutils.rotate(image1, img1rot)
+
    assert image0.ndim == 2, 'image should be grayscale'
    assert image1.ndim == 2, 'image should be grayscale'
    # combine images

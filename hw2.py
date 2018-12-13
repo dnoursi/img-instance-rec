@@ -2,7 +2,6 @@
 
 import numpy as np
 import canny
-import imutils
 
 """
    INTEREST POINT OPERATOR (12 Points Implementation + 3 Points Write-up)
@@ -263,20 +262,22 @@ def extract_features(image, xs, ys, scale = 1.0):
    window = 3 #not using scale, as its optional
 
    feats = []
+   orients = []
 
    mag, theta = canny.canny_nmax(image)
    dx, dy = canny.sobel_gradients(image)
    for i in range(N):
     bins = []
 
-    #print("A", xs[i], ys[i], len(dx), len(dy))
     dx_start = xs[i] - 1
     dx_end = xs[i] + 2  if xs[i] + 2 < len(dx) else len(dx) - 1
     dy_start = ys[i] - 1
     dy_end = ys[i] + 2 if ys[i] + 2 < len(dx[0]) else len(dx[0]) - 1
     dir_img_i = dir_img(dx[np.ix_([dx_start, dx_end],[dy_start, dy_end])], 
       dy[np.ix_([dx_start, dx_end],[dy_start, dy_end])])
-    #print("D", dir_img_i)
+
+    print(dir_img_i)
+    orients.append(dir_img_i)
 
     for x in range(3):
       for y in range(3):
@@ -298,7 +299,7 @@ def extract_features(image, xs, ys, scale = 1.0):
 
    feats = np.asarray(feats)
    ##########################################################################
-   return feats
+   return feats, (np.average(orients) * 180.0/np.pi)
 
 #compute averge orientation at each pixel 
 def dir_img(dx, dy):

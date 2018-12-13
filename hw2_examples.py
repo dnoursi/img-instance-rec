@@ -72,7 +72,7 @@ from hw2 import *
 # img1 = load_image('data/shanghai/shanghai-24.png')
 
 img0 = load_image('data/test_proj/shanghai-23.png')
-img1 = load_image('data/test_proj/shanghai-24.png')
+img1 = load_image('data/test_proj/shanghai-24_new.png')
 
 ## Problem 1 - Interest Point Operator
 ##             (12 Points Implementation + 3 Points Write-up)
@@ -96,8 +96,10 @@ plt.show(block = False)
 ## (B) Include (in hw2.pdf) a brief description of the design      (3 Points)
 ##     choices you made and their effectiveness.
 
-feats0 = extract_features(img0, xs0, ys0, 1.0)
-feats1 = extract_features(img1, xs1, ys1, 1.0)
+feats0, orients0 = extract_features(img0, xs0, ys0, 1.0)
+feats1, orients1 = extract_features(img1, xs1, ys1, 1.0)
+
+print(orients0, orients1)
 
 ## Problem 3 - Feature Matching
 ##             (7 Points Implementation + 3 Points Write-up)
@@ -120,6 +122,6 @@ plt.show(block = False)
 
 tx, ty, votes = hough_votes(xs0, ys0, xs1, ys1, matches, match_scores)
 
-show_overlay(img0, img1, tx, ty)
+show_overlay(img0, img1, tx, ty, (orients0 - orients1))
 #plt.show(block = False)
 plt.show()
