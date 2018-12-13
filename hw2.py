@@ -81,18 +81,11 @@ import imutils
                     measurement of the relative strength of each interest point
                     (e.g. corner detector criterion OR DoG operator magnitude)
 """
-def find_interest_points(image, max_points = 200, scale = 1.0, img_dir = None):
+def find_interest_points(image, max_points = 200, scale = 1.0):
    # check that image is grayscale
     assert image.ndim == 2, 'image should be grayscale'
 
     dx, dy = canny.sobel_gradients(image)
-
-    or_xy= dir_img(dx, dy, image)
-
-    if img_dir is not None :
-      angle = (or_xy - img_dir) * 180.0/np.pi
-      image = imutils.rotate(image, angle)
-
 
     win_size = int(scale)
 
@@ -151,7 +144,7 @@ def find_interest_points(image, max_points = 200, scale = 1.0, img_dir = None):
     xs = np.array(xs)
     ys = np.array(ys)
 
-    return xs, ys, scores, or_xy
+    return xs, ys, scores
 
 """
    FEATURE DESCRIPTOR (12 Points Implementation + 3 Points Write-up)
@@ -272,8 +265,18 @@ def extract_features(image, xs, ys, scale = 1.0):
    feats = []
 
    mag, theta = canny.canny_nmax(image)
+   dx, dy = canny.sobel_gradients(image)
    for i in range(N):
     bins = []
+
+    #print("A", xs[i], ys[i], len(dx), len(dy))
+    dx_start = xs[i] - 1
+    dx_end = xs[i] + 2  if xs[i] + 2 < len(dx) else len(dx) - 1
+    dy_start = ys[i] - 1
+    dy_end = ys[i] + 2 if ys[i] + 2 < len(dx[0]) else len(dx[0]) - 1
+    dir_img_i = dir_img(dx[np.ix_([dx_start, dx_end],[dy_start, dy_end])], 
+      dy[np.ix_([dx_start, dx_end],[dy_start, dy_end])])
+    #print("D", dir_img_i)
 
     for x in range(3):
       for y in range(3):
@@ -287,7 +290,7 @@ def extract_features(image, xs, ys, scale = 1.0):
             x_disp = int(xs[i] - binx - 1 + a)
             y_disp = int(ys[i] - biny - 1 + b)
 
-            val = int((theta[x_disp,y_disp] + np.pi)/((np.pi + np.pi)/8)) - 1
+            val = int((theta[x_disp,y_disp] - dir_img_i + np.pi)/((np.pi + np.pi)/8)) - 1
 
             bin[val] += 1
         bins.extend(bin)
@@ -298,16 +301,17 @@ def extract_features(image, xs, ys, scale = 1.0):
    return feats
 
 #compute averge orientation at each pixel 
-def dir_img(dx, dy, img):
-  dir_dxys = np.zeros_like(dy)
+def dir_img(dx, dy):
+  dir_dxys = np.zeros_like(dx)
 
+  #print("B", len(dir_dxys), len(dx), len(dy))
   for x in range(len(dx)):
     for y in range(len(dx[x])):
       dir_dxys[x][y] = np.arctan2(dy[x][y], dx[x][y]) % np.pi
 
   orient_xy =  np.average(dir_dxys)
 
-  print(orient_xy)
+  #print("C", orient_xy * 180.0/np.pi)
 
   return orient_xy
 

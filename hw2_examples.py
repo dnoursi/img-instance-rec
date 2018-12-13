@@ -82,8 +82,8 @@ img1 = load_image('data/test_proj/shanghai-24.png')
 ##     choices you made and their effectiveness.
 
 N = 200
-xs0, ys0, scores0, img_dir0 = find_interest_points(img0, N, 1.0)
-xs1, ys1, scores1, img_dir1 = find_interest_points(img1, N, 1.0, img_dir0)
+xs0, ys0, scores0 = find_interest_points(img0, N, 1.0)
+xs1, ys1, scores1 = find_interest_points(img1, N, 1.0)
 
 plot_interest_points(img0, xs0, ys0, scores0)
 plot_interest_points(img1, xs1, ys1, scores1)
