@@ -71,8 +71,22 @@ from hw2 import *
 # img0 = load_image('data/shanghai/shanghai-23.png')
 # img1 = load_image('data/shanghai/shanghai-24.png')
 
-img0 = load_image('data/test_proj/shanghai-23.png')
+og_img0 = load_image('data/test_proj/shanghai-23.png')
 img1 = load_image('data/test_proj/shanghai-24_new.png')
+
+def many_sizes(img):
+    result = []
+    height0 = img.shape[0]
+
+    scales = [.5, .75, 1., 1.25, 1.5]
+    heights = [int(scale * height0) for scale in scales]
+
+    for height in heights:
+        result.append(imutils.resize(img, height = height))
+
+    return result
+
+imgs0 = many_sizes(og_img0)
 
 ## Problem 1 - Interest Point Operator
 ##             (12 Points Implementation + 3 Points Write-up)
@@ -81,47 +95,50 @@ img1 = load_image('data/test_proj/shanghai-24_new.png')
 ## (B) Include (in hw2.pdf) a brief description of the design      (3 Points)
 ##     choices you made and their effectiveness.
 
-N = 200
-xs0, ys0, scores0 = find_interest_points(img0, N, 1.0)
-xs1, ys1, scores1 = find_interest_points(img1, N, 1.0)
+for img0 in imgs0:
+    N = 200
+    xs0, ys0, scores0 = find_interest_points(img0, N, 1.0)
+    xs1, ys1, scores1 = find_interest_points(img1, N, 1.0)
 
-plot_interest_points(img0, xs0, ys0, scores0)
-plot_interest_points(img1, xs1, ys1, scores1)
-plt.show(block = False)
+    plot_interest_points(img0, xs0, ys0, scores0)
+    plot_interest_points(img1, xs1, ys1, scores1)
+    plt.show(block = False)
 
-## Problem 2 - Feature Descriptor Extraction
-##             (12 Points Implementation + 3 Points Write-up)
-##
-## (A) Implement extract_features() as described in hw2.py        (12 Points)
-## (B) Include (in hw2.pdf) a brief description of the design      (3 Points)
-##     choices you made and their effectiveness.
+    ## Problem 2 - Feature Descriptor Extraction
+    ##             (12 Points Implementation + 3 Points Write-up)
+    ##
+    ## (A) Implement extract_features() as described in hw2.py        (12 Points)
+    ## (B) Include (in hw2.pdf) a brief description of the design      (3 Points)
+    ##     choices you made and their effectiveness.
 
-feats0, orients0 = extract_features(img0, xs0, ys0, 1.0)
-feats1, orients1 = extract_features(img1, xs1, ys1, 1.0)
 
-print(orients0, orients1)
+    feats0, orients0 = extract_features(img0, xs0, ys0, 1.0)
+    bigfeats0, _ = extract_features(img0, xs0, ys0, 1.0)
+    feats1, orients1 = extract_features(img1, xs1, ys1, 1.0)
 
-## Problem 3 - Feature Matching
-##             (7 Points Implementation + 3 Points Write-up)
-##
-## (A) Implement match_features() as described in hw2.py           (7 Points)
-## (B) Include (in hw2.pdf) a brief description of the scheme      (3 Points)
-##     you used for scoring the quality of a match.
+    print(orients0, orients1)
 
-matches, match_scores = match_features(feats0, feats1, scores0, scores1)
+    ## Problem 3 - Feature Matching
+    ##             (7 Points Implementation + 3 Points Write-up)
+    ##
+    ## (A) Implement match_features() as described in hw2.py           (7 Points)
+    ## (B) Include (in hw2.pdf) a brief description of the scheme      (3 Points)
+    ##     you used for scoring the quality of a match.
 
-threshold = 1.0 # adjust this for your match scoring system
-#plot_matches(img0, img1, xs0, ys0, xs1, ys1, matches, match_scores, threshold)
-plt.show(block = False)
+    matches, match_scores = match_features(feats0, feats1, scores0, scores1)
 
-## Problem 4 - Hough Transform
-##             (7 Points Implementation + 3 Points Write-up)
-##
-## (A) Implement hough_votes() as described in hw2.py              (7 Points)
-## (B) Briefly describe (in hw2.pdf) your binning strategy.        (3 Points)
+    threshold = 1.0 # adjust this for your match scoring system
+    #plot_matches(img0, img1, xs0, ys0, xs1, ys1, matches, match_scores, threshold)
+    plt.show(block = False)
 
-tx, ty, votes = hough_votes(xs0, ys0, xs1, ys1, matches, match_scores)
+    ## Problem 4 - Hough Transform
+    ##             (7 Points Implementation + 3 Points Write-up)
+    ##
+    ## (A) Implement hough_votes() as described in hw2.py              (7 Points)
+    ## (B) Briefly describe (in hw2.pdf) your binning strategy.        (3 Points)
 
-show_overlay(img0, img1, tx, ty, (orients0 - orients1))
-#plt.show(block = False)
-plt.show()
+    tx, ty, votes = hough_votes(xs0, ys0, xs1, ys1, matches, match_scores)
+
+    show_overlay(img0, img1, tx, ty, (orients0 - orients1))
+    #plt.show(block = False)
+    plt.show()
