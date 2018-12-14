@@ -32,5 +32,8 @@ def gen_squares_and_save(img_path):
 			cropped.save('data/gen_data/%s/%d.png' % (fname, counter))
 			counter+=1
 
+#gen_squares_and_save('data/halfdome/halfdome-08.png')
+#gen_squares_and_save('data/shanghai/shanghai-21.png')
+
 
 

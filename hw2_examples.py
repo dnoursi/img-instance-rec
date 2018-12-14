@@ -72,7 +72,7 @@ from hw2 import *
 # img1 = load_image('data/shanghai/shanghai-24.png')
 
 og_img0 = load_image('data/test_proj/shanghai-23.png')
-img1 = load_image('data/test_proj/shanghai-24_new.png')
+img1 = load_image('data/test_proj/shanghai-24.png')
 
 def many_sizes(img):
     result = []
