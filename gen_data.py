@@ -19,21 +19,32 @@ def gen_squares_and_save(img_path):
 	original = IMP.open(img_path)
 	new_dir = 'data/gen_data/%s' % fname
 
+	imgs_ret = []
+
 	if not os.path.exists(new_dir):
 		os.mkdir(new_dir)
 
-	for ix in range(0, xr - window, window):
-		for iy in range(0, yr - window, window):
+		for ix in range(0, xr - window, window):
+			for iy in range(0, yr - window, window):
 
-			leny = window if iy + window < yr else yr - iy - 1
-			lenx = window if ix + window < xr else xr - ix - 1
+				leny = window if iy + window < yr else yr - iy - 1
+				lenx = window if ix + window < xr else xr - ix - 1
 
-			cropped = original.crop((ix, iy, ix+lenx, iy+leny))
-			cropped.save('data/gen_data/%s/%d.png' % (fname, counter))
-			counter+=1
+				cropped = original.crop((ix, iy, ix+lenx, iy+leny))
+				i_path = 'data/gen_data/%s/%d.png' % (fname, counter)
 
-#gen_squares_and_save('data/halfdome/halfdome-08.png')
-#gen_squares_and_save('data/shanghai/shanghai-21.png')
+				cropped.save(i_path)
+				img_temp = load_image(i_path)
+				imgs_ret.append(img_temp)
+				counter+=1
+	else:
+		for f in os.listdir(new_dir):
+			i_path = 'data/gen_data/%s/%s' % (fname, f)
+
+			img_temp = load_image(i_path)
+			imgs_ret.append(img_temp)
+
+	return imgs_ret
 
 
 

@@ -8,6 +8,7 @@ import imutils
 from util import *
 from visualize import *
 from hw2 import *
+from gen_data import *
 
 
 # Return 5 rescaled versions of a single image
@@ -35,7 +36,10 @@ def detect_instance(scene_img, instance_imgs):
     for i, img0 in enumerate(instance_imgs):
         xs0, ys0, scores0 = find_interest_points(img0, N_instance, 1.0)
         feats0, _ = extract_features(img0, xs0, ys0, 1.0)
-        instance_feats += feats0
+        if len(instance_feats) == 0:
+            instance_feats = feats0
+        else:
+            instance_feats += feats0
         assert len(feats0) == N_instance
         instance_feats_map += ([i] * N_instance)
 
@@ -46,9 +50,12 @@ def detect_instance(scene_img, instance_imgs):
     scene_imgs = many_sizes(scene_img)
     scene_feats = []
     for img0 in scene_imgs:
-        xs0, ys0, scores0 = find_interest_points(img0, N, 1.0)
+        xs0, ys0, scores0 = find_interest_points(img0, N_scene, 1.0)
         feats0, _ = extract_features(img0, xs0, ys0, 1.0)
-        scene_feats += feats0
+        if len(scene_feats) == 0:
+            scene_feats = feats0
+        else:
+            scene_feats += feats0
 
     # NN
     # TODO is scores=None okay?
@@ -76,3 +83,36 @@ def detect_instance(scene_img, instance_imgs):
             detections.append(instance_index)
 
     return detections
+
+#function to run the demo altogether
+def detections_demo():
+
+    i0 = load_image('data/halfdome/halfdome-08.png')
+    i0s = gen_squares_and_save('data/halfdome/halfdome-08.png')
+
+    i1 = load_image('data/shanghai/shanghai-21.png')
+    i1s = gen_squares_and_save('data/shanghai/shanghai-21.png')
+
+    i2 = load_image('data/rio/rio-23.png')
+    i2s = gen_squares_and_save('data/rio/rio-23.png')
+
+    #print(len(i0s), len(i1s), len(i2s))
+    #d0s = detect_instance(i0, i0s)
+
+    coke_test = load_image('data/gen_data/coke.png')
+    coke_scene = load_image('data/gen_data/coke_full_small.png')
+
+    coke = detect_instance(coke_scene, [coke_test])
+
+    # d1s = detect_instance(i1, i1s)
+    # d2s = detect_instance(i2, i2s)
+
+    print(coke)#d0s, d1s, d2s)
+
+
+detections_demo()
+
+
+
+
+
