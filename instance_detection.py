@@ -3,10 +3,25 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+import imutils
+
 from util import *
 from visualize import *
 from hw2 import *
 
+
+# Return 5 rescaled versions of a single image
+def many_sizes(img):
+    result = []
+    height0 = img.shape[0]
+
+    scales = [.5, .75, 1., 1.25, 1.5]
+    heights = [int(scale * height0) for scale in scales]
+
+    for height in heights:
+        result.append(imutils.resize(img, height = height))
+
+    return result
 
 # Input: a scene image, and many instance images
 # Output: indices of those instance images which have been detected in the scene image
