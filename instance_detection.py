@@ -1,7 +1,7 @@
 
 
 import numpy as np
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 import imutils
 
@@ -55,7 +55,7 @@ def detect_instance(scene_img, instance_imgs):
         assert len(f0) == N_scene
         scene_feats += f0
     print(len(scene_feats))
-    
+
     # NN
     # TODO is scores=None okay?
     scores0 = scores1 = None
@@ -98,17 +98,25 @@ def detections_demo():
     print(len(i0s), len(i1s), len(i2s))
     #d0s = detect_instance(i0, i0s)
 
-    coke_test = load_image('data/gen_data/coke.png')
-    coke_scene = load_image('data/gen_data/coke_full_small.png')
+    coke_instance = load_image('data/gen_data/coke.png')
+    scene = load_image('data/gen_data/coke_full_small.png')
 
-    instances = [coke_test] + i0s + i1s + i2s
-    coke = detect_instance(coke_scene, instances)
+    instances = [coke_instance] + i0s + i1s + i2s
+
+    detected = detect_instance(scene, instances)
 
     # d1s = detect_instance(i1, i1s)
     # d2s = detect_instance(i2, i2s)
 
-    print(len(coke))
-    print(coke)
+    print(len(detected))
+    print(detected)
+
+    for i in detected:
+        plt.imshow(instances[i], cmap='gray')
+        plt.show(block = False)
+    plt.imshow(scene, cmap='gray')
+    plt.show()
+
     #d0s, d1s, d2s)
 
 
