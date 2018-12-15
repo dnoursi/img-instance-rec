@@ -1,5 +1,8 @@
 # img-instance-rec
-This software package contains code for recognition of image instances through feature descriptors and scalable nearest neighbors (BBF k-d tree).
+[https://github.com/dnoursi/img-instance-rec](https://github.com/dnoursi/img-instance-rec)
+
+
+This software package contains code for recognition of image instances within large scene images. We implement algorithms for  descriptor vector construction, and scalable nearest neighbors with a BBF k-d tree.
 
 The API can be called through a single function, `detect_instances(scene, instances)`, within `instance_detection.py`. This function takes two arguments, a scene image in which to detect object instances, and a list of object instance images.
 
