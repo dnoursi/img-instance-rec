@@ -11,7 +11,7 @@ def gen_squares_and_save(img_path):
 	xr = img.shape[0]
 	yr = img.shape[1]
 
-	window = 50 #n pixel squares taken
+	window = 20 #n pixel squares taken
 	counter = 0
 
 	fname = re.match(r'^[\w\d\/]+\/([\w|\d|\-|_]+)\.[\w\d]+$', img_path).groups()[0]
