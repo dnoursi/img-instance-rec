@@ -102,7 +102,8 @@ def detections_demo():
     coke_test = load_image('data/gen_data/coke.png')
     coke_scene = load_image('data/gen_data/coke_full_small.png')
 
-    coke = detect_instance(coke_scene, [coke_test])
+    instances = [coke_test] + i0s + i1s + i2s
+    coke = detect_instance(coke_scene, instances)
 
     # d1s = detect_instance(i1, i1s)
     # d2s = detect_instance(i2, i2s)
@@ -111,8 +112,3 @@ def detections_demo():
 
 
 detections_demo()
-
-
-
-
-

@@ -273,15 +273,15 @@ def extract_features(image, xs, ys, scale = 1.0):
     dx_end = xs[i] + 2  if xs[i] + 2 < len(dx) else len(dx) - 1
     dy_start = ys[i] - 1
     dy_end = ys[i] + 2 if ys[i] + 2 < len(dx[0]) else len(dx[0]) - 1
-    dir_img_i = dir_img(dx[np.ix_([dx_start, dx_end],[dy_start, dy_end])], 
+    dir_img_i = dir_img(dx[np.ix_([dx_start, dx_end],[dy_start, dy_end])],
       dy[np.ix_([dx_start, dx_end],[dy_start, dy_end])])
 
-    print(dir_img_i)
+    #print(dir_img_i)
     orients.append(dir_img_i)
 
     for x in range(3):
       for y in range(3):
-        binx = (x+3)/((3+3)/3) 
+        binx = (x+3)/((3+3)/3)
         biny = (y+3)/((3+3)/3)
 
         bin = np.zeros(8)
@@ -301,7 +301,7 @@ def extract_features(image, xs, ys, scale = 1.0):
    ##########################################################################
    return feats, (np.average(orients) * 180.0/np.pi)
 
-#compute averge orientation at each pixel 
+#compute averge orientation at each pixel
 def dir_img(dx, dy):
   dir_dxys = np.zeros_like(dx)
 
