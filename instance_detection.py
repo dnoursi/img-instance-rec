@@ -1,7 +1,7 @@
 
 
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 import imutils
 
@@ -36,12 +36,11 @@ def detect_instance(scene_img, instance_imgs):
     for i, img0 in enumerate(instance_imgs):
         xs0, ys0, scores0 = find_interest_points(img0, N_instance, 1.0)
         feats0, _ = extract_features(img0, xs0, ys0, 1.0)
-        if len(instance_feats) == 0:
-            instance_feats = feats0
-        else:
-            instance_feats += feats0
-        assert len(feats0) == N_instance
+        f0 = [feat for feat in feats0]
+        assert len(f0) == N_instance
+        instance_feats += f0
         instance_feats_map += ([i] * N_instance)
+    print(len(instance_feats))
 
     # So instance_feats_map[j] stores which instance feature vector j came from
     # Note: could be eliminated with "N_instance" based index arithmetic
@@ -52,11 +51,11 @@ def detect_instance(scene_img, instance_imgs):
     for img0 in scene_imgs:
         xs0, ys0, scores0 = find_interest_points(img0, N_scene, 1.0)
         feats0, _ = extract_features(img0, xs0, ys0, 1.0)
-        if len(scene_feats) == 0:
-            scene_feats = feats0
-        else:
-            scene_feats += feats0
-
+        f0 = [feat for feat in feats0]
+        assert len(f0) == N_scene
+        scene_feats += f0
+    print(len(scene_feats))
+    
     # NN
     # TODO is scores=None okay?
     scores0 = scores1 = None
@@ -96,7 +95,7 @@ def detections_demo():
     i2 = load_image('data/rio/rio-23.png')
     i2s = gen_squares_and_save('data/rio/rio-23.png')
 
-    #print(len(i0s), len(i1s), len(i2s))
+    print(len(i0s), len(i1s), len(i2s))
     #d0s = detect_instance(i0, i0s)
 
     coke_test = load_image('data/gen_data/coke.png')
@@ -108,7 +107,9 @@ def detections_demo():
     # d1s = detect_instance(i1, i1s)
     # d2s = detect_instance(i2, i2s)
 
-    print(coke)#d0s, d1s, d2s)
+    print(len(coke))
+    print(coke)
+    #d0s, d1s, d2s)
 
 
 detections_demo()
