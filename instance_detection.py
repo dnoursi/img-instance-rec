@@ -7,7 +7,7 @@ import imutils
 
 from util import *
 from visualize import *
-from hw2 import *
+from features import *
 from gen_data import *
 
 
@@ -26,7 +26,7 @@ def many_sizes(img):
 
 # Input: a scene image, and many instance images
 # Output: indices of those instance images which have been detected in the scene image
-def detect_instance(scene_img, instance_imgs):
+def detect_instances(scene_img, instance_imgs):
     # N is number of instance points desired per image
     N_instance = 20
     N_scene = N_instance * 10
@@ -97,7 +97,6 @@ def detections_demo():
     i2s = gen_squares_and_save('data/rio/rio-23.png')
 
     print(len(i0s), len(i1s), len(i2s))
-    #d0s = detect_instance(i0, i0s)
 
     coke_instance = load_image('data/gen_data/coke.png')
     scene = load_image('data/gen_data/coke_full_small.png')
@@ -105,11 +104,8 @@ def detections_demo():
     instances = [coke_instance] + i0s + i1s + i2s
 
     start_time = time.time()
-    detected = detect_instance(scene, instances)
+    detected = detect_instances(scene, instances)
     print("detection took", time.time()-start_time, "seconds")
-
-    # d1s = detect_instance(i1, i1s)
-    # d2s = detect_instance(i2, i2s)
 
     print(len(detected))
     print(detected)
@@ -119,8 +115,6 @@ def detections_demo():
         plt.show()
     plt.imshow(scene, cmap='gray')
     plt.show()
-
-    #d0s, d1s, d2s)
 
 
 detections_demo()
