@@ -83,6 +83,7 @@ def detect_instance(scene_img, instance_imgs):
 
     return detections
 
+import time
 #function to run the demo altogether
 def detections_demo():
 
@@ -103,7 +104,9 @@ def detections_demo():
 
     instances = [coke_instance] + i0s + i1s + i2s
 
+    start_time = time.time()
     detected = detect_instance(scene, instances)
+    print("detection took", time.time()-start_time, "seconds")
 
     # d1s = detect_instance(i1, i1s)
     # d2s = detect_instance(i2, i2s)
@@ -113,7 +116,7 @@ def detections_demo():
 
     for i in detected:
         plt.imshow(instances[i], cmap='gray')
-        plt.show(block = False)
+        plt.show()
     plt.imshow(scene, cmap='gray')
     plt.show()
 
