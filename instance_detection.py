@@ -79,6 +79,8 @@ def detect_instances(scene_img, instance_imgs):
     for instance_index, score in enumerate(detection_scores):
         if score > .8 * N_instance:
             detections.append(instance_index)
+            print(score)
+
 
     return detections
 
