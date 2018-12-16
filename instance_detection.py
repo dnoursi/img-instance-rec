@@ -57,7 +57,6 @@ def detect_instances(scene_img, instance_imgs):
     print(len(scene_feats))
 
     # NN
-    # TODO is scores=None okay?
     scores0 = scores1 = None
     # Returns: matches:
     # a numpy array of shape (N0,) containing, for each feature in feats0,
